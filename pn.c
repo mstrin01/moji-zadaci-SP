@@ -113,22 +113,21 @@ int stvoriListu(position p, int slucajniBr, int* brojac)
 {
 	position noviEl = NULL;
 	noviEl = Inicijalizacija(noviEl);
-	while (p->next != NULL && p->next->broj > slucajniBr)
+	while (p->next != NULL && p->next->broj >= slucajniBr)
 	{
 		p = p->next;
 	}
-	if (p->next!=NULL &&  (p->broj == slucajniBr || p->next->broj == slucajniBr ))
-	{
-			
-			return -1;
-	}
-	else
+	if (p->broj != slucajniBr)
 	{
 		noviEl->broj = slucajniBr;
 		++(*brojac);
 
 		noviEl->next = p->next;
 		p->next = noviEl;
+	}
+	else
+	{
+		return -1;
 
 	}
 	
