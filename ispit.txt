@@ -1,0 +1,13 @@
+1 adr
+2 inz_eko
+3 ViS
+4 mat_1
+5 mat_2 
+6 kom
+7 elekt
+8 urip
+9 prog
+10 strukt
+11 oop
+12 pis
+13 pzi
