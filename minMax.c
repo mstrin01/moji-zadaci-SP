@@ -5,265 +5,217 @@
 #include <time.h>
 
 /*
-Napisati program koji generira 15 sluèajnih brojeva u opsegu od 100 - 120 i sprema ih u vezanu
+Napisati program koji generira 15 sluÄajnih brojeva u opsegu od 100 - 120 i sprema ih u vezanu
 listu, po redoslijedu generiranja, a ne sortirano. U listi ne smije biti duplih vrijednosti.
-a) Potrebno je pronaæi minimalnu i maksimalnu vrijednost, te iz njih izraèunati srednju vrijednost
-((min+max)/2) i nakon toga sve vrijednosti koje su veæe od srednje prebaciti na kraj liste. Ispisati
+a) Potrebno je pronaÄ‡i minimalnu i maksimalnu vrijednost, te iz njih izraÄunati srednju vrijednost
+((min+max)/2) i nakon toga sve vrijednosti koje su veÄ‡e od srednje prebaciti na kraj liste. Ispisati
 minimalnu, maksimalnu i srednju vrijednost kao i rezultantnu listu.
 */
 
-#define GG 120
-#define DG 100
+#define gg 120
+#define dg 100
 
 struct _lista;
 typedef struct _lista* position;
 typedef struct _lista
 {
-	int broj;
-	position next;
-}lista;
+    int broj;
+    position next;
+} lista;
 
-position inicijalizacija(position);
-int generiraj(position);
+
+position inicijalizacija();
+int genBr(position);
 int stvoriListu(position, int);
-int ispisListe(position);
-int pronadjiMin(position);
-int pronadjiMax(position);
-int novaLista(position, int);
+int ispis(position);
+int minVr(position);
+int maxVr(position);
+int prebaciNaKraj(position, int);
 position nadjiZadnji(position);
+int oslobodiMemoriju(position);
 
 int main()
 {
-	srand(time(NULL));
-	position head = NULL, novaHead = NULL;
-	int min = 0, max = 0, srednja = 0;
+    srand(time(NULL));
+    position head = NULL;
+    int min = 0, max = 0, srednja = 0;
 
-	head = inicijalizacija(head);
-	novaHead = inicijalizacija(novaHead);
+    head = inicijalizacija();
+    genBr(head);
+    ispis(head->next);
 
-	generiraj(head);
-	ispisListe(head->next);
+    min = minVr(head->next);
+    max = maxVr(head->next);
+    printf("\nMIN: %d", min);
+    printf("\nMAX: %d", max);
+ 
 
-	min = pronadjiMin(head->next);
-	printf("\nNajmanji element: %d\n", min);
+    srednja = (min + max) / 2;
+    printf("\nSREDNJA: %d", srednja);
+    puts(""); 
 
-	max = pronadjiMax(head->next);
-	printf("\nNajveci element: %d\n", max);
+    prebaciNaKraj(head, srednja);
+    puts("");
+    ispis(head->next);
 
-	srednja = (min + max) / 2;
-	printf("\nSrednja vrijednost: %d\n", srednja);
+    printf("\nOSLOBADJANJE MEMORIJE: ");
+    oslobodiMemoriju(head);
+    ispis(head->next);
+    return 0;
+}
 
-	novaLista(head, srednja);
-	ispisListe(head->next);
+position inicijalizacija()
+{
+    position p = NULL;
+    p = (position)malloc(sizeof(lista));
 
-	return 0;
+    if (!p)
+    {
+        printf("Greska u alokaciji!\n");
+        return NULL;
+    }
+
+    p->broj = 0;
+    p->next = NULL;
+    
+    return p;
+
+}
+int genBr(position p)
+{
+    int br = 0, i = 0;
+    
+    do
+    {
+        br = rand() % (gg - dg + 1) + dg;
+        if (stvoriListu(p, br) != 1)
+            ++i;
+
+    } while (i < 15);
+   
+
+    return 0;
+}
+int stvoriListu(position p, int br)
+{
+    position q = NULL, temp = NULL;
+    q = inicijalizacija();
+
+    temp = p->next;
+    while (temp != NULL)
+    {
+        if (temp->broj == br)
+        {
+            free(q);
+            return 1;
+        }
+        temp = temp->next;
+    }
+
+    
+    q->broj = br;
+    q->next = p->next;
+    p->next = q;
+    
+    return 0;
+}
+
+int ispis(position p)
+{
+    if (p == NULL)
+    {
+        printf("Lista je prazna!\n");
+    }
+
+    while (p != NULL)
+    {
+        printf("%d\n", p->broj);
+        p = p->next;
+    }
+
+    return 0;
+}
+
+int minVr(position p)
+{
+    int min = 0;
+    position curr = NULL;
+    curr = p;
+
+    min = curr->broj;
+    while (curr != NULL)
+    {
+        if (curr->broj < min)
+        {
+            min = curr->broj;
+        }
+        curr = curr->next;
+    }
+    return min;
+
+}
+int maxVr(position p)
+{
+    int max = 0;
+    position curr = NULL;
+    curr = p;
+
+    max = curr->broj;
+    while (curr != NULL)
+    {
+        if (curr->broj > max)
+        {
+            max = curr->broj;
+        }
+        curr = curr->next;
+    }
+    return max;
+
+}
+
+int prebaciNaKraj(position p, int srednja)
+{
+    position prev = NULL, curr = NULL, zadnji = NULL;
+    zadnji = nadjiZadnji(p);
+    
+    prev = p;
+    curr = prev->next;
+
+    while (curr != zadnji)
+    {
+        if (curr->broj > srednja)
+        {
+            prev->next = curr->next;
+            curr->next = zadnji->next;
+            zadnji->next = curr;
+        }
+        else
+        {
+            prev = curr;
+            curr = prev->next;
+        }
+        curr = prev->next;
+    }
+
+    return 0;
 }
 
 position nadjiZadnji(position p)
 {
-	while(p->next != NULL)
-	{
-		p = p->next;
-	}
-	return p;
+    while (p->next != NULL)
+        p = p->next;
+
+    return p;
 }
 
-int novaLista(position p, int srednja)
+int oslobodiMemoriju(position p)
 {
-	position current = NULL, zadnji = NULL, prev = NULL, noviZadnji = NULL, head = NULL;
-
-	head = p;
-	prev = p;
-	current = p->next;
-
-	zadnji = nadjiZadnji(p); //3
-	noviZadnji = zadnji;
-
-	while (current != zadnji)
-	{
-		if (current->broj > srednja)
-		{
-			prev->next = current->next;
-
-			noviZadnji->next = current;
-			current->next = NULL;
-			noviZadnji = current;
-		}
-		else 
-		{
-			prev = current;
-			current = current->next;
-		}
-		current = prev->next;
-	}
-	
-	if (current == zadnji)
-	{
-		if (current->broj > srednja)
-		{
-			prev->next = current->next;
-
-			noviZadnji->next = current;
-			current->next = NULL;
-			noviZadnji = current;
-		}
-
-	}
-
-	return 0;
-}
-
-
-int pronadjiMax(position p)
-{
-	int max = 0;
-	position current = NULL;
-	current = p;
-
-	if (p == NULL)
-		printf("Lista je prazna!\n");
-	
-	else
-	{
-		max = p->broj;
-		
-		while (current != NULL)
-		{
-			if (current->broj > max)
-			{
-				max = current->broj;
-			}
-			current = current->next;
-		}
-	
-	}
-
-	return max;
-}
-
-int pronadjiMin(position p)
-{
-	int min = 0;
-
-	position current = NULL;
-	current = p;
-
-	if (p == NULL)
-	{
-		printf("Lista je prazna!\n");
-	}
-
-	else 
-	{
-		min = p->broj;
-		while (current != NULL)
-		{
-			if (current->broj < min)
-			{
-				min = current->broj;
-			}
-			current = current->next;
-		}
-	}
-
-	return min;
-}
-
-
-int ispisListe(position p)
-{
-	if (p == NULL)
-	{
-		printf("Lista je prazna!\n");
-	}
-
-	while (p != NULL)
-	{
-		printf("%d\n", p->broj);
-		p = p->next;
-	}
-
-	return 0;
-}
-
-
-int stvoriListu(position p, int br)
-{
-	position q = NULL;
-	q = inicijalizacija(q);
-
-	if (p->next == NULL)
-	{
-		q->broj = br;
-		q->next = p->next;
-		p->next = q;
-	}
-	else {
-		while (p->next != NULL)
-		{
-			if (p->broj != br)
-			{
-				p = p->next;
-			}
-			else
-			{
-				printf("Broj vec postoji!\n");
-				return 1;
-			}
-
-		}
-		if (p->broj != br)
-		{
-			q->broj = br;
-			q->next = p->next;
-			p->next = q;
-		}
-		else
-		{
-			printf("Broj vec postoji!\n");
-			return 1;
-		}
-		
-	}
-	
-
-	return 0;
-
-}
-
-
-int generiraj(position p)
-{
-	int br = 0, i = 0;
-	int povratna = 0;
-
-	do {
-
-		br = rand() % (GG - DG + 1) + DG;
-		povratna=stvoriListu(p, br);
-		if (povratna != 1)
-		{
-			++i;
-		}
-		
-
-	} while (i < 15);
-
-	return 0;
-}
-
-
-position inicijalizacija(position p)
-{
-	p = (position)malloc(sizeof(lista));
-	if (p == NULL)
-	{
-		printf("Greska u alokaciji!\n");
-		return NULL;
-	}
-
-	p->broj = 0;
-	p->next = NULL;
-
-	return p;
+    position temp = NULL;
+    while (p->next != NULL)
+    {
+        temp = p->next;
+        p->next = temp->next;
+        free(temp);
+    }
+    return 0;
 }
